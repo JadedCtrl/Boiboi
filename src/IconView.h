@@ -72,7 +72,11 @@ private:
     QPointF draggedItemOrigin; // The point from which a dragging action originates
     QPointF draggedPosition; // Current position to which the item has been dragged
 
-    QList<QPixmap> pixmaps;
+    bool isMultiSelecting; // Whether or not the user's making a 'selection box'
+    QPointF multiSelectionOrigin; // Where such a selection originated from
+    QPointF multiSelectionEnd; // Where it ends
+
+    QList<QPixmap> pixmaps; // Store all used icons, for efficient rendering
 };
 
 #endif // _ICON_VIEW_H

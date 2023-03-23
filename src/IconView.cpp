@@ -17,8 +17,6 @@
 
 #include "IconView.h"
 
-#include <iostream>
-
 #include <QPainter>
 #include <QPaintEvent>
 #include <QStyle>
@@ -40,6 +38,11 @@ void
 IconView::paintEvent(QPaintEvent* event)
 {
     QPainter painter(this);
+
+    QRectF multiSelectRect(multiSelectionOrigin, multiSelectionEnd);
+    if (isMultiSelecting)
+    	painter.fillRect(multiSelectRect, palette().color(QPalette::Highlight));
+
     for (int i = 0; i < itemIcons.count(); i++)
 	if (event->rect().contains(itemPositions[i].toPoint()))
 	    drawItem(&painter, itemLabels[i], itemPositions[i], itemRects[i],
@@ -47,6 +50,13 @@ IconView::paintEvent(QPaintEvent* event)
 
     if (isDragging == DRAGGING)
 	drawItemSilhouette(&painter, draggedItemIndex);
+
+    if (isMultiSelecting) {
+	QPen oldPen(painter.pen());
+	painter.setPen(palette().color(QPalette::HighlightedText));
+	painter.drawRect(multiSelectRect);
+	painter.setPen(oldPen);
+    }
 }
 
 
@@ -66,6 +76,11 @@ IconView::mousePressEvent(QMouseEvent* event)
 	draggedItemIndex = item;
 	draggedItemOrigin = event->position();
     }
+    else {
+	isMultiSelecting = true;
+	multiSelectionOrigin = event->position();
+	multiSelectionEnd = event->position();
+    }
     update();
 }
 
@@ -84,6 +99,10 @@ IconView::mouseReleaseEvent(QMouseEvent* event)
 	    itemRects[draggedItemIndex] = iconBoundingBox(draggedPosition);
 	}
     }
+
+    if (isMultiSelecting)
+	isMultiSelecting = false;
+
     update();
 }
 
@@ -102,6 +121,13 @@ IconView::mouseMoveEvent(QMouseEvent* event)
 	isDragging = DRAGGING;
     } else if (isDragging == DRAGGING)
 	draggedPosition = pos;
+
+    if (isMultiSelecting) {
+	multiSelectionEnd = pos;
+	QRectF selectRect = QRectF(multiSelectionOrigin, multiSelectionEnd);
+	for (int i = 0; i < itemsSelected.count(); i++)
+	    itemsSelected[i] = (selectRect.intersects(itemRects[i]));
+    }
 
     update();
 }
@@ -195,15 +221,9 @@ IconView::drawItemSilhouette(QPainter* painter, int item_index)
 int
 IconView::itemAtPoint(QPointF point)
 {
-    std::cout << "»" << point.x() << "x" << point.y() << std::endl;
-
-    for (int i = 0; i < itemRects.count(); i++) {
-	std::cout << itemRects[i].x() << "x" << itemRects[i].y() << std::endl;
-	if (itemRects[i].contains(point)) {
-	    std::cout << "CONTAINS " << i << std::endl;
+    for (int i = 0; i < itemRects.count(); i++)
+	if (itemRects[i].contains(point))
 	    return i;
-	}
-    }
     return -1;
 }
 
