@@ -30,6 +30,7 @@ public:
     IconView(QWidget* parent = nullptr);
 
     void paintEvent(QPaintEvent* event);
+    void mousePressEvent(QMouseEvent* event);
 
     void addItem(QString label, QPointF position);
     void addItem(QString label);
@@ -39,6 +40,8 @@ public:
 private:
     void drawItem(QPainter* painter, QString name, QPointF point, QRectF box,
 		  bool selected, QPixmap* icon = nullptr);
+
+    int itemAtPoint(QPointF point);
 
     QRectF iconBoundingBox(QPointF top_left_corner);
     QRectF iconLabelBox(QRect bounding_box, QString label);

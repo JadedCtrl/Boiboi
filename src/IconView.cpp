@@ -45,6 +45,23 @@ IconView::paintEvent(QPaintEvent* event)
 }
 
 
+// Select/deselect items, as appropriate.
+void
+IconView::mousePressEvent(QMouseEvent* event)
+{
+    // First, deselect everything else
+    for (int i = 0; i < itemsSelected.count(); i++)
+	itemsSelected[i] = false;
+
+    // Select the current item, if any
+    int item = itemAtPoint(event->position());
+    if (item >= 0)
+	itemsSelected[item] = true;
+
+    update();
+}
+
+
 // Add a new item to the IconView for display.
 void
 IconView::addItem(QString label, QPointF position)
@@ -98,6 +115,17 @@ IconView::drawItem(QPainter* painter, QString name, QPointF point, QRectF box, b
 	painter->fillRect(label_rect, palette().color(QPalette::Highlight));
     style()->drawItemText(painter, label_rect, Qt::AlignHCenter, palette(), true, name);
     style()->drawItemPixmap(painter, icon_rect, Qt::AlignHCenter, *icon);
+}
+
+
+// Returns the item at the given point, by index. -1 is returned if there is no item.
+int
+IconView::itemAtPoint(QPointF point)
+{
+    for (int i = 0; i < itemRects.count(); i++)
+	if (itemRects[i].contains(point.toPoint()))
+	    return i;
+    return -1;
 }
 
 
