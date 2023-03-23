@@ -16,7 +16,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <widget class="IconView" name="widget" native="true"/>
+     <widget class="DirIconView" name="widget" native="true"/>
     </item>
    </layout>
   </widget>
@@ -34,9 +34,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>IconView</class>
+   <class>DirIconView</class>
    <extends>QWidget</extends>
-   <header>IconView.h</header>
+   <header>DirIconView.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

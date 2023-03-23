@@ -23,6 +23,8 @@ set(PROJECT_SOURCES
         src/mainwindow.h
         src/IconView.cpp
         src/IconView.h
+	src/DirIconView.cpp
+	src/DirIconView.h
         ui/mainwindow.ui
         ${TS_FILES}
 )

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023, Jaidyn Ann <jadedctrl@posteo.at>
+ * Copyright 2022, Jaidyn Ann <jadedctrl@posteo.at>
  *
  * This program is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,27 +14,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
+#ifndef _DIR_ICON_VIEW_H
+#define _DIR_ICON_VIEW_H
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#include "IconView.h"
 
-#include <QMainWindow>
 
-QT_BEGIN_NAMESPACE
-namespace Ui { class MainWindow; }
-QT_END_NAMESPACE
-
-class MainWindow : public QMainWindow
-{
-    Q_OBJECT
-
+class DirIconView : public IconView {
 public:
-    MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+    DirIconView(QWidget* parent = nullptr);
+
+    void setDirectory(QString dir_path);
 
 private:
-    void setupUi();
 
-    Ui::MainWindow *ui;
 };
-#endif // MAINWINDOW_H
+
+#endif // _DIR_ICON_VIEW_H

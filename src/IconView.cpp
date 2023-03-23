@@ -30,27 +30,59 @@ IconView::IconView(QWidget* parent)
     : QWidget(parent)
 {
     pixmaps << style()->standardIcon(QStyle::SP_FileIcon).pixmap(ICON_HEIGHT, ICON_HEIGHT);
-    itemLabels << "Rama.txt";
-    itemPositions << QPointF(20.0, 20.0);
-    itemRects << iconBoundingBox(itemPositions[0]);
-    itemsSelected << true;
-    itemIcons << 0;
 }
 
 
+// Draw the view, overriding QWidget::paintEvent.
 void
 IconView::paintEvent(QPaintEvent* event)
 {
     QPainter painter(this);
     for (int i = 0; i < itemIcons.count(); i++)
 	if (event->rect().contains(itemPositions[i].toPoint()))
-	    drawFile(&painter, itemLabels[i], itemPositions[i], itemRects[i],
+	    drawItem(&painter, itemLabels[i], itemPositions[i], itemRects[i],
 		     itemsSelected[i], &pixmaps[itemIcons[i]]);
 }
 
 
+// Add a new item to the IconView for display.
 void
-IconView::drawFile(QPainter* painter, QString name, QPointF point, QRectF box, bool selected,
+IconView::addItem(QString label, QPointF position)
+{
+    itemLabels << label;
+    itemPositions << position;
+    itemRects << iconBoundingBox(position);
+    itemsSelected << false;
+    itemIcons << 0;
+}
+
+
+// Add a new item to the IconView for display, letting IconView algorithmically choose
+// the “ideal” position (read: literally no algorithim yet c:).
+void
+IconView::addItem(QString label)
+{
+    addItem(label, QPointF(20.0, 20.0));
+}
+
+
+// Remove all current items, and refresh the display. Squeaky-clean!
+void
+IconView::clear()
+{
+    itemLabels.clear();
+    itemPositions.clear();
+    itemRects.clear();
+    itemsSelected.clear();
+    itemIcons.clear();
+
+    update();
+}
+
+
+// Draw an individual item in the view, with the given information.
+void
+IconView::drawItem(QPainter* painter, QString name, QPointF point, QRectF box, bool selected,
 		   QPixmap* icon)
 {
     const QRect icon_rect = QRect(point.x(), point.y(),
@@ -69,6 +101,8 @@ IconView::drawFile(QPainter* painter, QString name, QPointF point, QRectF box, b
 }
 
 
+// Find the maximum bounding box of an item, including label and icon, given the
+// point for the top-left corner.
 QRectF
 IconView::iconBoundingBox(QPointF top_left_corner)
 {
@@ -78,6 +112,7 @@ IconView::iconBoundingBox(QPointF top_left_corner)
 }
 
 
+// Find the optimum bounding box for the label to be drawn in.
 QRectF
 IconView::iconLabelBox(QRect bounding_box, QString label)
 {

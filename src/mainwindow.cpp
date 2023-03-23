@@ -18,15 +18,27 @@
 #include "mainwindow.h"
 #include "../ui/ui_mainwindow.h"
 
+#include <QDir>
+
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
-    ui->setupUi(this);
+    setupUi();
 }
+
 
 MainWindow::~MainWindow()
 {
     delete ui;
 }
 
+
+void
+MainWindow::setupUi()
+{
+    ui->setupUi(this);
+
+    ui->widget->setDirectory(QDir::homePath());
+}

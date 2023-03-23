@@ -31,8 +31,13 @@ public:
 
     void paintEvent(QPaintEvent* event);
 
+    void addItem(QString label, QPointF position);
+    void addItem(QString label);
+
+    void clear();
+
 private:
-    void drawFile(QPainter* painter, QString name, QPointF point, QRectF box,
+    void drawItem(QPainter* painter, QString name, QPointF point, QRectF box,
 		  bool selected, QPixmap* icon = nullptr);
 
     QRectF iconBoundingBox(QPointF top_left_corner);

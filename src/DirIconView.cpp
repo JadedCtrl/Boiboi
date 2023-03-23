@@ -1,5 +1,5 @@
 /*
- * Copyright 2023, Jaidyn Ann <jadedctrl@posteo.at>
+ * Copyright 2022, Jaidyn Ann <jadedctrl@posteo.at>
  *
  * This program is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,26 +15,31 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#include "DirIconView.h"
 
-#include <QMainWindow>
+#include <QDir>
 
-QT_BEGIN_NAMESPACE
-namespace Ui { class MainWindow; }
-QT_END_NAMESPACE
 
-class MainWindow : public QMainWindow
+DirIconView::DirIconView(QWidget* parent)
+    : IconView(parent)
 {
-    Q_OBJECT
+}
 
-public:
-    MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
 
-private:
-    void setupUi();
+// Sets the displayed directory: Populates the view with items pertaining to all the directory's files.
+void
+DirIconView::setDirectory(QString dir_path)
+{
+    clear();
 
-    Ui::MainWindow *ui;
-};
-#endif // MAINWINDOW_H
+    QPointF point(10.0, 10.0);
+    QStringList files = QDir(dir_path).entryList(QDir::NoDotAndDotDot | QDir::AllEntries | QDir::Hidden);
+    for (int i = 0; i < files.count(); i++) {
+	addItem(files[i], point);
+
+	if (point.x() < 300)
+	    point += QPointF(60.0, 0);
+	else
+	    point += QPointF(-300, 60.0);
+    }
+}
