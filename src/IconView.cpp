@@ -17,6 +17,8 @@
 
 #include "IconView.h"
 
+#include <iostream>
+
 #include <QPainter>
 #include <QPaintEvent>
 #include <QStyle>
@@ -42,6 +44,9 @@ IconView::paintEvent(QPaintEvent* event)
 	if (event->rect().contains(itemPositions[i].toPoint()))
 	    drawItem(&painter, itemLabels[i], itemPositions[i], itemRects[i],
 		     itemsSelected[i], &pixmaps[itemIcons[i]]);
+
+    if (isDragging == DRAGGING)
+	drawItemSilhouette(&painter, draggedItemIndex);
 }
 
 
@@ -53,10 +58,50 @@ IconView::mousePressEvent(QMouseEvent* event)
     for (int i = 0; i < itemsSelected.count(); i++)
 	itemsSelected[i] = false;
 
-    // Select the current item, if any
+    // Select the current item, and kick off a potential dragging.
     int item = itemAtPoint(event->position());
-    if (item >= 0)
+    if (item >= 0) {
 	itemsSelected[item] = true;
+	isDragging = MAYBE_DRAGGING;
+	draggedItemIndex = item;
+	draggedItemOrigin = event->position();
+    }
+    update();
+}
+
+
+// Stops drag operation, if currently being done
+void
+IconView::mouseReleaseEvent(QMouseEvent* event)
+{
+    if (isDragging == DRAGGING) {
+	isDragging = NOT_DRAGGING;
+
+	if (draggedPosition.x() >= 0
+	    && draggedPosition.y() >= 0)
+	{
+	    itemPositions[draggedItemIndex] = draggedPosition;
+	    itemRects[draggedItemIndex] = iconBoundingBox(draggedPosition);
+	}
+    }
+    update();
+}
+
+
+// Handle updating of drag operation, if being undertaken
+void
+IconView::mouseMoveEvent(QMouseEvent* event)
+{
+    QPointF pos = event->position();
+
+    // Don't actually start dragging unless the item's moved a good bit.
+    if (isDragging == MAYBE_DRAGGING
+	&& (abs(pos.x() - draggedItemOrigin.x()) >= 15
+	    && abs(pos.y() - draggedItemOrigin.x()) >= 15))
+    {
+	isDragging = DRAGGING;
+    } else if (isDragging == DRAGGING)
+	draggedPosition = pos;
 
     update();
 }
@@ -118,13 +163,47 @@ IconView::drawItem(QPainter* painter, QString name, QPointF point, QRectF box, b
 }
 
 
+// Draw an individual item in the view, of the given index.
+void
+IconView::drawItem(QPainter* painter, int item_index)
+{
+    drawItem(painter, itemLabels[item_index], itemPositions[item_index],
+	     itemRects[item_index], itemsSelected[item_index],
+	     &pixmaps[itemIcons[item_index]]);
+}
+
+
+// Draw an item's “silhouette”, ex. to draw it when being dragged, from data.
+void
+IconView::drawItemSilhouette(QPainter* painter, QString name, QPointF point, QPixmap* icon)
+{
+    drawItem(painter, name, point, iconBoundingBox(point), false, icon);
+}
+
+
+
+// Draw an item's “silhouette”, ex. to draw it when being dragged, from index.
+void
+IconView::drawItemSilhouette(QPainter* painter, int item_index)
+{
+    drawItemSilhouette(painter, itemLabels[item_index], draggedPosition,
+		       &pixmaps[itemIcons[item_index]]);
+}
+
+
 // Returns the item at the given point, by index. -1 is returned if there is no item.
 int
 IconView::itemAtPoint(QPointF point)
 {
-    for (int i = 0; i < itemRects.count(); i++)
-	if (itemRects[i].contains(point.toPoint()))
+    std::cout << "»" << point.x() << "x" << point.y() << std::endl;
+
+    for (int i = 0; i < itemRects.count(); i++) {
+	std::cout << itemRects[i].x() << "x" << itemRects[i].y() << std::endl;
+	if (itemRects[i].contains(point)) {
+	    std::cout << "CONTAINS " << i << std::endl;
 	    return i;
+	}
+    }
     return -1;
 }
 
